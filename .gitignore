@@ -1,0 +1,11 @@
+# environment / secrets
+.venv/
+.env
+
+# python
+__pycache__/
+*.pyc
+
+# generated raw data and operational state (per lab instructions)
+raw/
+state/

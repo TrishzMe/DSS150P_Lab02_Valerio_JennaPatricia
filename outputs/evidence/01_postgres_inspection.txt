@@ -1,0 +1,70 @@
+$ docker exec -i dss150p-lab2-postgres psql -U dss150p -d dss150p
+dss150p=# \d support_tickets
+                        Table "public.support_tickets"
+     Column     |            Type             | Collation | Nullable | Default 
+----------------+-----------------------------+-----------+----------+---------
+ ticket_id      | integer                     |           | not null | 
+ customer_id    | character varying(10)       |           | not null | 
+ category       | character varying(40)       |           | not null | 
+ priority       | character varying(10)       |           | not null | 
+ assigned_agent | character varying(80)       |           |          | 
+ opened_at      | timestamp without time zone |           | not null | 
+ resolved_at    | timestamp without time zone |           |          | 
+ status         | character varying(20)       |           | not null | 
+Indexes:
+    "support_tickets_pkey" PRIMARY KEY, btree (ticket_id)
+
+dss150p=# SELECT COUNT(*) FROM support_tickets;
+ count 
+-------
+   250
+(1 row)
+
+dss150p=# SELECT * FROM support_tickets ORDER BY ticket_id LIMIT 10;
+ ticket_id | customer_id | category  | priority | assigned_agent |      opened_at      |     resolved_at     |   status    
+-----------+-------------+-----------+----------+----------------+---------------------+---------------------+-------------
+         1 | C0246       | Technical | High     | J. Reyes       | 2026-06-19 04:00:00 | 2026-06-21 13:00:00 | Resolved
+         2 | C0130       | Product   | Medium   | J. Reyes       | 2026-05-26 07:00:00 | 2026-05-26 23:00:00 | Closed
+         3 | C0094       | Delivery  | Medium   | J. Reyes       | 2026-03-28 09:00:00 | 2026-03-31 17:00:00 | Closed
+         4 | C0057       | Technical | High     | L. Tan         | 2026-04-25 19:00:00 |                     | In Progress
+         5 | C0120       | Delivery  | High     | R. Cruz        | 2026-01-20 02:00:00 | 2026-01-22 21:00:00 | Resolved
+         6 | C0211       | Product   | Medium   | P. Lim         | 2026-02-26 13:00:00 |                     | Open
+         7 | C0041       | Delivery  | Low      | P. Lim         | 2026-03-11 23:00:00 |                     | Open
+         8 | C0040       | Billing   | Low      | L. Tan         | 2026-02-14 05:00:00 | 2026-02-16 08:00:00 | Resolved
+         9 | C0155       | Technical | Low      | R. Cruz        | 2026-02-09 04:00:00 | 2026-02-11 08:00:00 | Resolved
+        10 | C0094       | Account   | Low      | J. Reyes       | 2026-04-12 19:00:00 |                     | In Progress
+(10 rows)
+
+dss150p=# SELECT COUNT(*) FROM support_tickets WHERE assigned_agent IS NULL;
+ count 
+-------
+     4
+(1 row)
+
+dss150p=# SELECT COUNT(*) FROM support_tickets WHERE resolved_at IS NULL;
+ count 
+-------
+   125
+(1 row)
+
+dss150p=# SELECT status, COUNT(*) FROM support_tickets GROUP BY status ORDER BY 2 DESC;
+   status    | count 
+-------------+-------
+ In Progress |    69
+ Resolved    |    64
+ Closed      |    61
+ Open        |    56
+(4 rows)
+
+dss150p=# SELECT MIN(opened_at), MAX(opened_at) FROM support_tickets;
+         min         |         max         
+---------------------+---------------------
+ 2026-01-01 15:00:00 | 2026-06-29 16:00:00
+(1 row)
+
+dss150p=# SELECT COUNT(*) AS rows, COUNT(DISTINCT ticket_id) AS distinct_ids FROM support_tickets;
+ rows | distinct_ids 
+------+--------------
+  250 |          250
+(1 row)
+

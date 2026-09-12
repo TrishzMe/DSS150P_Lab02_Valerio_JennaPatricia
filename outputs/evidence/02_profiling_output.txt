@@ -1,0 +1,97 @@
+
+======================================================================
+PROFILE: customers.csv
+======================================================================
+File size: 18,183 bytes
+Rows: 250  Columns: 7
+
+Column -> inferred logical type / missing count:
+  customer_id        string                 missing=0
+  first_name         string                 missing=0
+  last_name          string                 missing=0
+  email              string                 missing=3
+  city               string                 missing=2
+  signup_date        date                   missing=0
+  customer_segment   string                 missing=0
+
+Exact duplicate rows: 2 extra copies across 2 duplicated row(s)
+  x2: ('C0036', 'Kevin', 'Fernandez', 'kevin.fernandez@example.com', 'Pasay', '2025-03-01', 'Student')
+  x2: ('C0145', 'Julia', 'Tan', 'julia.tan@example.com', 'Manila', '2025-02-02', 'Professional')
+
+customer_id unique: False
+  repeated ids: {'C0036': 2, 'C0090': 2, 'C0145': 2}
+email values without "@": 0
+customer_segment values: ['Professional', 'Retail', 'SME', 'Student']
+signup_date range: 2025-01-04 .. 2026-05-16
+
+Candidate validation rules:
+  1. customer_id must be non-null and unique (candidate key).
+  2. email, when present, must contain "@" and a domain.
+  3. signup_date must parse as YYYY-MM-DD and not be in the future.
+  4. customer_segment must belong to the observed controlled vocabulary.
+  5. No exact duplicate rows should be delivered in a single extract.
+
+======================================================================
+PROFILE: orders.json
+======================================================================
+File size: 77,938 bytes
+Root structure is a list: True
+Record count: 250
+Top-level keys: ['order_id', 'customer_id', 'order_timestamp', 'status', 'item_count', 'subtotal', 'shipping_fee', 'total_amount', 'shipping']
+Nested object field(s): ['shipping']
+  shipping sub-keys: ['method', 'region']
+
+Key -> type observed / null or missing count:
+  order_id           types=['str']  null=0  missing_key=0
+  customer_id        types=['str']  null=0  missing_key=0
+  order_timestamp    types=['str']  null=0  missing_key=0
+  status             types=['str']  null=0  missing_key=0
+  item_count         types=['int']  null=0  missing_key=0
+  subtotal           types=['float']  null=0  missing_key=0
+  shipping_fee       types=['int']  null=0  missing_key=0
+  total_amount       types=['float']  null=0  missing_key=0
+  shipping           types=['dict']  null=0  missing_key=0
+
+Timestamp-like fields: ['order_timestamp']
+Numeric fields: ['item_count', 'subtotal', 'shipping_fee', 'total_amount']
+
+Downstream options for the nested shipping object:
+  a) Flatten into columns (shipping_region, shipping_method) for relational targets.
+  b) Keep as a JSON/VARIANT column preserving the original structure.
+  c) Normalize into a separate shipping table keyed by order_id.
+
+======================================================================
+PROFILE: products.parquet
+======================================================================
+File size: 14,652 bytes
+Shape: 200 rows x 7 columns
+
+Dtypes (declared in the file, not inferred):
+product_id            str
+product_name          str
+category              str
+brand                 str
+unit_price        float64
+stock_quantity      int32
+weight_kg         float64
+
+Nulls per column:
+product_id        0
+product_name      0
+category          0
+brand             0
+unit_price        0
+stock_quantity    0
+weight_kg         0
+
+product_id unique: True
+products_optional_compare.csv: 11,560 bytes (parquet is 1.27x its size)
+products_optional_compare.json: 40,686 bytes (parquet is 0.36x its size)
+
+Dtype differences parquet vs CSV re-read (column, parquet, csv):
+  ('stock_quantity', 'int32', 'int64')
+
+Schema behavior: Parquet stores an embedded, typed schema (including
+categorical/dictionary encoding), so dtypes survive a round trip. CSV is
+untyped text that must be re-inferred on every read, and JSON only
+distinguishes string/number/bool/null.

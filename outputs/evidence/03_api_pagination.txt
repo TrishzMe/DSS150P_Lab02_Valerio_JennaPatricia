@@ -1,0 +1,15 @@
+--- GET http://127.0.0.1:8000/api/events?page=1&per_page=10
+pagination fields: {'page': 1, 'per_page': 10, 'total': 122, 'has_more': True, 'next_page': 2}
+first item: {"event_id": "E0001", "customer_id": "C0024", "event_type": "page_view", "amount": 4210.54, "updated_at": "2026-08-01T11:00:00", "metadata": {"channel": "partner", "campaign": "none"}}
+
+--- GET http://127.0.0.1:8000/api/events?page=2&per_page=10
+pagination fields: {'page': 2, 'per_page': 10, 'total': 122, 'has_more': True, 'next_page': 3}
+first item: {"event_id": "E0011", "customer_id": "C0162", "event_type": "checkout", "amount": 260.36, "updated_at": "2026-08-02T17:00:00", "metadata": {"channel": "web", "campaign": "none"}}
+
+walked 13 pages, 122 raw records, 120 distinct event_ids
+event_ids appearing more than once: ['E0020', 'E0055']
+  E0020: updated_at versions = ['2026-08-03T20:00:00', '2026-08-21T09:00:00']
+  E0055: updated_at versions = ['2026-08-08T05:00:00', '2026-08-21T10:00:00']
+
+Why page 1 alone is incomplete: total records span multiple pages;
+stopping at page 1 would silently drop every record on later pages.
