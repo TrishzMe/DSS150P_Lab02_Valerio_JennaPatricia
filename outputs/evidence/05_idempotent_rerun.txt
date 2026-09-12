@@ -1,0 +1,40 @@
+=== SECOND RUN (unchanged sources) - idempotency check ===
+$ python src/ingest_pipeline.py
+run_id=1c8b97ad32ce
+[files] skip customers.csv: content hash already ingested
+[files] skip orders.json: content hash already ingested
+[files] skip products.parquet: content hash already ingested
+[files] done: 3 sources checked, 0 copied, 3 skipped as duplicates
+[api] page 1: 0 records (has_more=False)
+[api] done: fetched 0 new, wrote 120 logical records, removed 0 duplicates
+[api] watermark: '2026-08-21T10:00:00' -> '2026-08-21T10:00:00'
+
+$ python src/validate_raw.py
+[PASS] raw file exists: customers.csv
+[PASS] raw file exists: orders.json
+[PASS] raw file exists: products.parquet
+[PASS] manifest exists
+[PASS] manifest entries carry all required fields - 3 entries
+[PASS] manifest ingested_at values parse as ISO-8601 UTC
+[PASS] no duplicate content hash ingested twice
+[PASS] raw copy of customers.csv matches a manifest sha256
+[PASS] raw copy of orders.json matches a manifest sha256
+[PASS] raw copy of products.parquet matches a manifest sha256
+[PASS] events.jsonl exists
+[PASS] events.jsonl is non-empty - 120 records
+[PASS] event_id unique across raw API records - 120 distinct ids
+[PASS] every record has _ingested_at and _source
+[PASS] every updated_at parses as ISO-8601
+[PASS] watermark file exists
+[PASS] watermark equals max(updated_at) of persisted records - watermark=2026-08-21T10:00:00, max=2026-08-21T10:00:00
+
+VALIDATION PASSED: all checks succeeded
+
+=== record counts after rerun (must be unchanged) ===
+  120 raw/api/events.jsonl
+    3 raw/files/manifest.jsonl
+  123 total
+customers.csv
+manifest.jsonl
+orders.json
+products.parquet

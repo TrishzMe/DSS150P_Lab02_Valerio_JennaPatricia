@@ -1,0 +1,20 @@
+=== FAILURE EXPERIMENT: API server stopped ===
+=== watermark BEFORE failed run ===
+{
+  "updated_at": "2026-08-21T10:00:00"
+}
+$ python src/ingest_pipeline.py
+[api] ERROR: API ingestion failed, watermark NOT advanced: HTTPConnectionPool(host='127.0.0.1', port=8000): Max retries exceeded with url: /api/events?page=1&per_page=20&updated_after=2026-08-21T10%3A00%3A00 (Caused by NewConnectionError("HTTPConnection(host='127.0.0.1', port=8000): Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it"))
+run_id=6529ef80e298
+[files] skip customers.csv: content hash already ingested
+[files] skip orders.json: content hash already ingested
+[files] skip products.parquet: content hash already ingested
+[files] done: 3 sources checked, 0 copied, 3 skipped as duplicates
+exit code: 1
+
+=== watermark AFTER failed run (must be unchanged) ===
+{
+  "updated_at": "2026-08-21T10:00:00"
+}
+=== run log tail showing FAILED row ===
+6529ef80e298,2026-09-12T09:11:20.924320+00:00,2026-09-12T09:11:22.964475+00:00,FAILED,api_events,0,0,0,2026-08-21T10:00:00,2026-08-21T10:00:00,"HTTPConnectionPool(host='127.0.0.1', port=8000): Max retries exceeded with url: /api/events?page=1&per_page=20&updated_after=2026-08-21T10%3A00%3A00 (Caused by NewConnectionError(""HTTPConnection(host='127.0.0.1', port=8000): Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it""))"

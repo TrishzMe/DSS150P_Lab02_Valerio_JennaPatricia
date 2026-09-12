@@ -1,0 +1,16 @@
+=== RECOVERY: API server restarted ===
+$ python src/ingest_pipeline.py
+run_id=039c12c8e9e6
+[files] skip customers.csv: content hash already ingested
+[files] skip orders.json: content hash already ingested
+[files] skip products.parquet: content hash already ingested
+[files] done: 3 sources checked, 0 copied, 3 skipped as duplicates
+[api] page 1: 0 records (has_more=False)
+[api] done: fetched 0 new, wrote 120 logical records, removed 0 duplicates
+[api] watermark: '2026-08-21T10:00:00' -> '2026-08-21T10:00:00'
+exit code: 0
+
+$ python src/validate_raw.py
+[PASS] watermark equals max(updated_at) of persisted records - watermark=2026-08-21T10:00:00, max=2026-08-21T10:00:00
+
+VALIDATION PASSED: all checks succeeded

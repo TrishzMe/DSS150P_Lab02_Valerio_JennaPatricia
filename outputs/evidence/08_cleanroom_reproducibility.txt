@@ -1,0 +1,30 @@
+=== CLEAN-ROOM REPRODUCIBILITY TEST ===
+--- logical fingerprint BEFORE (sha256 of sorted event_id,updated_at pairs) ---
+120 records, fingerprint: 32bd2fad187f7e31f0fd103f1d1a4f746f7b815e3b4701d6317591dcc2d99b8f
+
+$ rm -rf raw state   # generated outputs only; sources untouched
+ls: cannot access 'raw': No such file or directory
+ls: cannot access 'state': No such file or directory
+
+$ python src/ingest_pipeline.py
+run_id=7a2a351cd9d6
+[files] ingested customers.csv (18183 bytes, sha256=4229a20fde87...)
+[files] ingested orders.json (77938 bytes, sha256=7d303788cd35...)
+[files] ingested products.parquet (14652 bytes, sha256=cf3b6afd1eea...)
+[files] done: 3 sources checked, 3 copied, 0 skipped as duplicates
+[api] page 1: 20 records (has_more=True)
+[api] page 2: 20 records (has_more=True)
+[api] page 3: 20 records (has_more=True)
+[api] page 4: 20 records (has_more=True)
+[api] page 5: 20 records (has_more=True)
+[api] page 6: 20 records (has_more=True)
+[api] page 7: 2 records (has_more=False)
+[api] done: fetched 122 new, wrote 120 logical records, removed 2 duplicates
+[api] watermark: None -> '2026-08-21T10:00:00'
+
+--- logical fingerprint AFTER full rebuild ---
+120 records, fingerprint: 32bd2fad187f7e31f0fd103f1d1a4f746f7b815e3b4701d6317591dcc2d99b8f
+
+$ python src/validate_raw.py
+
+VALIDATION PASSED: all checks succeeded

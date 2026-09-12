@@ -1,0 +1,49 @@
+=== FIRST INGESTION RUN ===
+$ python src/ingest_pipeline.py
+run_id=c5910c4d4075
+[files] ingested customers.csv (18183 bytes, sha256=4229a20fde87...)
+[files] ingested orders.json (77938 bytes, sha256=7d303788cd35...)
+[files] ingested products.parquet (14652 bytes, sha256=cf3b6afd1eea...)
+[files] done: 3 sources checked, 3 copied, 0 skipped as duplicates
+[api] page 1: 20 records (has_more=True)
+[api] page 2: 20 records (has_more=True)
+[api] page 3: 20 records (has_more=True)
+[api] page 4: 20 records (has_more=True)
+[api] page 5: 20 records (has_more=True)
+[api] page 6: 20 records (has_more=True)
+[api] page 7: 2 records (has_more=False)
+[api] done: fetched 122 new, wrote 120 logical records, removed 2 duplicates
+[api] watermark: None -> '2026-08-21T10:00:00'
+
+$ python src/validate_raw.py
+[PASS] raw file exists: customers.csv
+[PASS] raw file exists: orders.json
+[PASS] raw file exists: products.parquet
+[PASS] manifest exists
+[PASS] manifest entries carry all required fields - 3 entries
+[PASS] manifest ingested_at values parse as ISO-8601 UTC
+[PASS] no duplicate content hash ingested twice
+[PASS] raw copy of customers.csv matches a manifest sha256
+[PASS] raw copy of orders.json matches a manifest sha256
+[PASS] raw copy of products.parquet matches a manifest sha256
+[PASS] events.jsonl exists
+[PASS] events.jsonl is non-empty - 120 records
+[PASS] event_id unique across raw API records - 120 distinct ids
+[PASS] every record has _ingested_at and _source
+[PASS] every updated_at parses as ISO-8601
+[PASS] watermark file exists
+[PASS] watermark equals max(updated_at) of persisted records - watermark=2026-08-21T10:00:00, max=2026-08-21T10:00:00
+
+VALIDATION PASSED: all checks succeeded
+
+=== state/api_watermark.json ===
+{
+  "updated_at": "2026-08-21T10:00:00"
+}
+=== raw/files/manifest.jsonl ===
+{"source_file": "customers.csv", "ingested_at": "2026-09-12T09:10:08.740825+00:00", "bytes": 18183, "sha256": "4229a20fde8733740f6d9a4c4bc49029dec0a36c96fce4efc2b50e14e0c2c80b"}
+{"source_file": "orders.json", "ingested_at": "2026-09-12T09:10:08.743832+00:00", "bytes": 77938, "sha256": "7d303788cd3581a54d738cecd42679cc7ecc458caf66d9897aaa73a792bbce69"}
+{"source_file": "products.parquet", "ingested_at": "2026-09-12T09:10:08.745832+00:00", "bytes": 14652, "sha256": "cf3b6afd1eea6c5c53a1f60e8e0e9f17dddef19ea5c8e57df10350ad9de93fc7"}
+
+=== record counts ===
+120 raw/api/events.jsonl
