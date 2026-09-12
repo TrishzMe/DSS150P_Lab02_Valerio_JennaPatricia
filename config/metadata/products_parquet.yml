@@ -1,0 +1,23 @@
+source_name: "products_parquet"
+source_type: "parquet_file"
+location_or_endpoint: "data/products.parquet"
+owner: "Product catalog team (placeholder contact: catalog-owner@example.com)"
+description: "Product catalog snapshot with category, brand, price, stock, and weight."
+record_count: 200
+schema:
+  - {name: product_id, logical_type: string, nullable: false}
+  - {name: product_name, logical_type: string, nullable: false}
+  - {name: category, logical_type: string (categorical), nullable: false}
+  - {name: brand, logical_type: string (categorical), nullable: false}
+  - {name: unit_price, logical_type: decimal (float64 in file), nullable: false}
+  - {name: stock_quantity, logical_type: integer (int32 in file), nullable: false}
+  - {name: weight_kg, logical_type: decimal (float64 in file), nullable: false}
+primary_or_candidate_key: "product_id (unique in observed data)"
+update_pattern: "Full snapshot file per delivery"
+known_quality_issues:
+  - "None observed; schema and types are embedded and enforced by the format"
+acquisition_method: "File copy into raw/files/ with SHA-256 manifest for duplicate prevention"
+validation_checks:
+  - "product_id non-null and unique"
+  - "unit_price > 0; stock_quantity >= 0; weight_kg > 0"
+  - "parquet schema matches the contract dtypes on read"

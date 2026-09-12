@@ -1,0 +1,26 @@
+source_name: "postgres_support_tickets"
+source_type: "postgresql_table"
+location_or_endpoint: "postgresql://localhost:5432/dss150p, table public.support_tickets (credentials via environment, not committed)"
+owner: "Customer support team (placeholder contact: support-owner@example.com)"
+description: "Operational support tickets with category, priority, assignment, lifecycle timestamps, and status."
+record_count: 250
+schema:
+  - {name: ticket_id, logical_type: integer, nullable: false, key: primary}
+  - {name: customer_id, logical_type: string, nullable: false}
+  - {name: category, logical_type: string (controlled vocabulary), nullable: false}
+  - {name: priority, logical_type: string (Low/Medium/High), nullable: false}
+  - {name: assigned_agent, logical_type: string, nullable: true}
+  - {name: opened_at, logical_type: timestamp, nullable: false}
+  - {name: resolved_at, logical_type: timestamp, nullable: true}
+  - {name: status, logical_type: string (Open/In Progress/Resolved/Closed), nullable: false}
+primary_or_candidate_key: "ticket_id (PRIMARY KEY enforced by the database)"
+update_pattern: "Operational OLTP table; rows inserted when opened and updated when assigned/resolved"
+known_quality_issues:
+  - "4 rows with NULL assigned_agent"
+  - "125 rows with NULL resolved_at — legitimate state for unresolved tickets, not an error"
+acquisition_method: "Inspection only in this lab (bounded queries). Future extraction: incremental on a last-updated timestamp column or CDC to avoid loading the OLTP source"
+validation_checks:
+  - "ticket_id unique (guaranteed by PK)"
+  - "resolved_at >= opened_at when present"
+  - "status within {Open, In Progress, Resolved, Closed}"
+  - "resolved_at non-null when status is Resolved/Closed"

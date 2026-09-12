@@ -1,0 +1,52 @@
+# Task 2.2 - Basic logical schema: API events
+# Distinguishes how a field arrives (source_representation) from what it means (logical_type).
+dataset: api_events
+fields:
+  - name: event_id
+    source_representation: JSON string
+    logical_type: string
+    nullable: false
+    key_role: logical key (one record per event_id after keeping greatest updated_at)
+    definition: Identifier of the business event; re-delivered with a newer updated_at when the event is revised.
+  - name: customer_id
+    source_representation: JSON string
+    logical_type: string
+    nullable: false
+    key_role: foreign reference to customers.customer_id
+    definition: Customer who generated the event.
+  - name: event_type
+    source_representation: JSON string
+    logical_type: string, controlled vocabulary (e.g. page_view, checkout)
+    nullable: false
+    key_role: none
+    definition: Kind of interaction the event records.
+  - name: amount
+    source_representation: JSON number
+    logical_type: decimal (monetary value)
+    nullable: false
+    key_role: none
+    definition: Monetary value associated with the event.
+  - name: updated_at
+    source_representation: JSON string, ISO-8601 without timezone offset
+    logical_type: timestamp (assumed single source timezone)
+    nullable: false
+    key_role: version discriminator and incremental watermark field
+    definition: Source-side moment the event was created or last revised; drives updated_after filtering and duplicate resolution.
+  - name: metadata
+    source_representation: JSON object
+    logical_type: nested object {channel string, campaign string}
+    nullable: false
+    key_role: none
+    definition: Acquisition context of the event (marketing channel and campaign).
+  - name: _ingested_at
+    source_representation: added by pipeline, not present at source
+    logical_type: timestamp with timezone (UTC)
+    nullable: false
+    key_role: none
+    definition: Ingestion-time metadata; when this pipeline persisted the record.
+  - name: _source
+    source_representation: added by pipeline, not present at source
+    logical_type: string
+    nullable: false
+    key_role: none
+    definition: Ingestion-time metadata; endpoint the record was retrieved from.

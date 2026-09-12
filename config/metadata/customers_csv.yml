@@ -1,0 +1,27 @@
+source_name: "customers_csv"
+source_type: "csv_file"
+location_or_endpoint: "data/customers.csv"
+owner: "CRM team (placeholder contact: crm-owner@example.com)"
+description: "Customer master snapshot with identity, location, signup date, and segment."
+record_count: 250
+schema:
+  - {name: customer_id, logical_type: string, nullable: false}
+  - {name: first_name, logical_type: string, nullable: false}
+  - {name: last_name, logical_type: string, nullable: false}
+  - {name: email, logical_type: string, nullable: true}
+  - {name: city, logical_type: string, nullable: true}
+  - {name: signup_date, logical_type: date, nullable: false}
+  - {name: customer_segment, logical_type: string (controlled vocabulary), nullable: false}
+primary_or_candidate_key: "customer_id (candidate; uniqueness violated in observed data)"
+update_pattern: "Full snapshot file per delivery"
+known_quality_issues:
+  - "3 rows with missing email; 2 rows with missing city"
+  - "2 exact duplicate rows (all columns identical)"
+  - "3 repeated customer_id values, including one collision where two different people share C0090"
+acquisition_method: "File copy into raw/files/ with SHA-256 manifest for duplicate prevention"
+validation_checks:
+  - "customer_id non-null and unique"
+  - "email contains '@' when present"
+  - "signup_date parses as YYYY-MM-DD and is not in the future"
+  - "customer_segment within {Professional, Retail, SME, Student}"
+  - "no exact duplicate rows in a single delivery"

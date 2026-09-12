@@ -1,0 +1,25 @@
+source_name: "api_events"
+source_type: "rest_api"
+location_or_endpoint: "http://127.0.0.1:8000/api/events (paginated; supports updated_after)"
+owner: "Events platform team (placeholder contact: events-owner@example.com)"
+description: "Customer interaction events (page views, checkouts, etc.) with amounts and nested channel metadata; updated events are re-delivered under the same event_id with a newer updated_at."
+record_count: "122 raw deliveries / 120 logical events at profiling time"
+schema:
+  - {name: event_id, logical_type: string, nullable: false}
+  - {name: customer_id, logical_type: string, nullable: false}
+  - {name: event_type, logical_type: string (controlled vocabulary), nullable: false}
+  - {name: amount, logical_type: decimal, nullable: false}
+  - {name: updated_at, logical_type: timestamp (delivered as ISO-8601 string), nullable: false}
+  - {name: metadata, logical_type: nested object {channel string, campaign string}, nullable: false}
+primary_or_candidate_key: "event_id (one logical record per event_id after keeping max updated_at)"
+update_pattern: "Incremental; server filters with updated_after > watermark"
+known_quality_issues:
+  - "Duplicate event_ids delivered when an event is updated (observed: 2 ids with two versions each); consumer must deduplicate keeping greatest updated_at"
+  - "updated_at has no timezone offset"
+  - "Records must be collected across all pages; total spans multiple pages at any allowed per_page"
+acquisition_method: "Paginated GET until has_more=false, appending _ingested_at/_source, dedup by event_id, write to raw/api/events.jsonl, then advance watermark"
+validation_checks:
+  - "event_id unique in raw output after deduplication"
+  - "updated_at parses as ISO-8601"
+  - "every ingested record carries _ingested_at (UTC) and _source"
+  - "watermark equals max(updated_at) of successfully persisted records"

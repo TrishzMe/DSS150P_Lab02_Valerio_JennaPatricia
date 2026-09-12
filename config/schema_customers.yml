@@ -1,0 +1,46 @@
+# Task 2.2 - Basic logical schema: customers
+# Distinguishes how a field arrives (source_representation) from what it means (logical_type).
+dataset: customers
+fields:
+  - name: customer_id
+    source_representation: CSV text
+    logical_type: string
+    nullable: false
+    key_role: candidate key (uniqueness violated in observed data and must be validated)
+    definition: Stable identifier assigned to a customer by the CRM.
+  - name: first_name
+    source_representation: CSV text
+    logical_type: string
+    nullable: false
+    key_role: none
+    definition: Customer given name as registered.
+  - name: last_name
+    source_representation: CSV text
+    logical_type: string
+    nullable: false
+    key_role: none
+    definition: Customer family name as registered.
+  - name: email
+    source_representation: CSV text
+    logical_type: string (email address)
+    nullable: true
+    key_role: alternate contact identifier (not a key; may be missing)
+    definition: Primary contact email; absent when the customer declined to provide one.
+  - name: city
+    source_representation: CSV text
+    logical_type: string
+    nullable: true
+    key_role: none
+    definition: City of the customer's registered address.
+  - name: signup_date
+    source_representation: CSV text "YYYY-MM-DD"
+    logical_type: date
+    nullable: false
+    key_role: none
+    definition: Calendar date the customer account was created.
+  - name: customer_segment
+    source_representation: CSV text
+    logical_type: string, controlled vocabulary {Professional, Retail, SME, Student}
+    nullable: false
+    key_role: none
+    definition: Marketing segment assigned to the customer.

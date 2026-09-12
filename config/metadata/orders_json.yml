@@ -1,0 +1,28 @@
+source_name: "orders_json"
+source_type: "json_file"
+location_or_endpoint: "data/orders.json"
+owner: "Order management team (placeholder contact: oms-owner@example.com)"
+description: "Order transactions with amounts, status, and a nested shipping object."
+record_count: 250
+schema:
+  - {name: order_id, logical_type: string, nullable: false}
+  - {name: customer_id, logical_type: string, nullable: false}
+  - {name: order_timestamp, logical_type: timestamp (delivered as ISO-8601 string), nullable: false}
+  - {name: status, logical_type: string (controlled vocabulary), nullable: false}
+  - {name: item_count, logical_type: integer, nullable: false}
+  - {name: subtotal, logical_type: decimal, nullable: false}
+  - {name: shipping_fee, logical_type: decimal (observed as int on all rows), nullable: false}
+  - {name: total_amount, logical_type: decimal, nullable: false}
+  - {name: shipping, logical_type: nested object {region string, method string}, nullable: false}
+primary_or_candidate_key: "order_id"
+update_pattern: "Full snapshot file per delivery"
+known_quality_issues:
+  - "Timestamps are strings without timezone offset; timezone is assumed, not declared"
+  - "Nested shipping object requires a representation decision downstream (flatten, JSON column, or child table)"
+acquisition_method: "File copy into raw/files/ with SHA-256 manifest for duplicate prevention"
+validation_checks:
+  - "root structure is a list of records"
+  - "order_id non-null and unique"
+  - "order_timestamp parses as ISO-8601"
+  - "item_count >= 1; subtotal, shipping_fee, total_amount >= 0"
+  - "total_amount ≈ subtotal + shipping_fee"

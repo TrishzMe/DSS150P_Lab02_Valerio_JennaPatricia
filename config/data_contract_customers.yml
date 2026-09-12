@@ -1,18 +1,78 @@
+# Task 2.3 - Data contract: customers
 dataset: customers
-owner: "TODO"
+description: >
+  Customer master snapshot covering identity, contact details, location, signup date,
+  and marketing segment. Delivered as a full CSV file per cycle and ingested unchanged
+  into the raw area.
+owner: "CRM team (producer) — placeholder contact: crm-owner@example.com"
+producer: "CRM export job"
+consumer: "Data engineering ingestion pipeline; downstream analytics (segments, retention)"
 source_type: csv
 primary_key: customer_id
 delivery:
-  cadence: "TODO"
+  cadence: "Full snapshot per delivery cycle (assumed daily for this lab); available by 06:00 local time"
+  format: "UTF-8 CSV with header row, comma-delimited"
 fields:
   - name: customer_id
     type: string
     nullable: false
     unique: true
+    definition: Stable CRM customer identifier; pattern C followed by 4 digits.
+  - name: first_name
+    type: string
+    nullable: false
+    unique: false
+    definition: Customer given name.
+  - name: last_name
+    type: string
+    nullable: false
+    unique: false
+    definition: Customer family name.
   - name: email
     type: string
     nullable: true
+    unique: false
+    definition: Contact email; may be absent when not provided.
+  - name: city
+    type: string
+    nullable: true
+    unique: false
+    definition: City of registered address.
+  - name: signup_date
+    type: date
+    nullable: false
+    unique: false
+    definition: Account creation date, formatted YYYY-MM-DD.
+  - name: customer_segment
+    type: string
+    nullable: false
+    unique: false
+    definition: One of the agreed segment values.
 quality_rules:
-  - "TODO: define at least 5 rules"
+  - "R1: customer_id is non-null and unique within a delivery; a repeated id (e.g. two different people sharing one id) is a contract breach."
+  - "R2: email, when present, contains exactly one '@' and a non-empty domain."
+  - "R3: signup_date parses as YYYY-MM-DD and is not later than the delivery date."
+  - "R4: customer_segment is one of {Professional, Retail, SME, Student}; new values require prior notice."
+  - "R5: a delivery contains no exact duplicate rows."
+  - "R6: first_name and last_name are non-empty."
+uniqueness_and_nullability: >
+  customer_id unique and mandatory; email and city optional; all other fields mandatory.
+  Observed data currently violates R1 (three repeated ids) and R5 (two duplicate rows);
+  violations are reported to the producer, never repaired in the raw area.
 change_policy:
-  schema_change_notice: "TODO"
+  schema_change_notice: >
+    Producer gives at least 10 business days written notice before adding, renaming,
+    retyping, or removing a column. Additive, nullable columns after notice are
+    non-breaking; all other changes require consumer sign-off and a contract version bump.
+contact_and_escalation: >
+  First contact: crm-owner@example.com. Escalation: data-platform-lead@example.com,
+  then course instructor (lab placeholder). Quality-rule breaches are raised within one
+  business day with the failing rule id and row evidence.
+ingestion_approach:
+  mode: full
+  justification: >
+    The source delivers a complete small snapshot (250 rows) with no reliable
+    last-modified column, and customer attributes can change in place. Copying the full
+    file with a SHA-256 manifest is simpler and safer than deriving increments, and the
+    hash check keeps reruns idempotent. Incremental extraction would only pay off with a
+    trustworthy change timestamp or CDC feed and a much larger volume.
