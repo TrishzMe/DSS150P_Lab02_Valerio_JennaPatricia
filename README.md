@@ -1,6 +1,4 @@
-# DSS150P Laboratory Activity #2 — Valerio, Jenna Patricia
-
-Source profiling, metadata, data contracts, and incremental ingestion.
+# DSS150P Laboratory Activity #2
 
 ## Setup
 1. `python -m venv .venv`
